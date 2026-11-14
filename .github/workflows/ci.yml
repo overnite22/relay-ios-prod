@@ -1,6 +1,7 @@
 name: CI
 
-# Dépôt public : minutes macOS gratuites, tout tourne à chaque push.
+# relay-ios-dev (privé) : tests Linux seulement. relay-ios-prod (public) :
+# minutes macOS gratuites, build iOS et IPA à chaque publication.
 # Publication d'une release : Actions → CI → Run workflow, « release » coché.
 on:
   push:
@@ -41,6 +42,7 @@ jobs:
 
   ios:
     needs: source-check
+    if: github.repository == 'overnite22/relay-ios-prod'
     runs-on: macos-latest
     timeout-minutes: 60
     outputs:
