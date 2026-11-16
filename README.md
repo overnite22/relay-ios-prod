@@ -1,68 +1,70 @@
-# Relay pour iPhone
+**English** · [Français](README.fr.md)
 
-Client iPhone natif (SwiftUI) d'un serveur **Relay**, gestionnaire de connexions auto-hébergé
-(SSH, RDP, VNC, coffre d'identifiants, synchronisation d'inventaire). Version **0.4.0**.
-Cible iOS 26.0+, interface en français, aucune dépendance tierce.
+# Relay for iPhone
 
-## Fonctionnalités
+Native iPhone client (SwiftUI) for a **Relay** server, a self-hosted connection manager
+(SSH, RDP, VNC, credential vault, inventory sync). Version **0.4.0**.
+Targets iOS 26.0+, French-language interface, no third-party dependencies.
 
-- **Appairage par QR code** : Relay web → Administration → Appareils. Le jeton d'appareil (`rlt_…`) est stocké
-  dans le Keychain, sur cet iPhone uniquement, et révocable depuis Relay web.
-- **Connexions** : arborescence des dossiers, recherche globale, favoris, récents, témoin de disponibilité.
-- **Sessions SSH, RDP et VNC** dans l'app, via le tunnel Guacamole du serveur :
-  - rendu natif CoreGraphics (calques, images PNG/JPEG/WebP, curseur distant) ;
-  - modes **pavé tactile** et **toucher direct**, zoom au pincement, molette à deux doigts ;
-  - clavier avec Échap, Tab, Ctrl, Alt, flèches, F1–F12, et prise en charge des claviers matériels ;
-  - presse-papiers dans les deux sens, Ctrl+Alt+Suppr, rotation avec redimensionnement de la session ;
-  - enregistrement de session à la demande.
-- **Plusieurs sessions** ouvertes à la fois : réduction, sélecteur de sessions, **espaces de travail** (groupes d'entrées ouverts ensemble).
-- **Consoles Proxmox** (VM et conteneurs) dans l'app, relayées par guacd côté serveur.
-- **Fichiers** dans les sessions : SFTP en SSH, lecteur « Relay » en RDP (envoi depuis Fichiers, téléchargement, fichiers poussés par Windows).
-- **Commande SSH** sur plusieurs serveurs : sélection par dossier, sudo, délai, parallélisme, bibliothèque, suivi en direct, relance des échecs, historique.
-- **Édition** : entrées (création, modification, duplication, suppression), dossiers et leurs identifiants hérités, coffre, notes Markdown, pièces jointes.
-- **Administration** : sources de synchro Proxmox/NetBox, doublons et fusion, import RDM, sauvegarde chiffrée (export et restauration), retest de la disponibilité.
-- **Connexion rapide** SSH/RDP sans créer de fiche.
-- **Disponibilité** : entrées injoignables, accessibles ou sans mesure, retest à la demande.
-- **Coffre** : utilisateur, mot de passe, clé SSH et codes TOTP, derrière Face ID ; copie avec expiration.
-- **Enregistrements** : relecture des sessions enregistrées (lecture, pause, ±10 s, vitesse ×0,5 à ×8, pauses sautées), suppression.
-- **Journal d'activité** du serveur.
+## Features
 
-Les entrées Web s'ouvrent dans Safari.
+- **QR code pairing**: Relay web → Administration → Devices. The device token (`rlt_…`) is stored
+  in the Keychain, on this iPhone only, and can be revoked from Relay web.
+- **Connections**: folder tree, global search, favorites, recents, availability indicator.
+- **SSH, RDP and VNC sessions** in the app, through the server's Guacamole tunnel:
+  - native CoreGraphics rendering (layers, PNG/JPEG/WebP images, remote cursor);
+  - **trackpad** and **direct touch** modes, pinch to zoom, two-finger scroll wheel;
+  - keyboard with Esc, Tab, Ctrl, Alt, arrows, F1–F12, and hardware keyboard support;
+  - two-way clipboard, Ctrl+Alt+Delete, rotation with session resizing;
+  - on-demand session recording.
+- **Multiple sessions** open at once: minimize, session switcher, **workspaces** (groups of entries opened together).
+- **Proxmox consoles** (VMs and containers) in the app, relayed by guacd on the server side.
+- **Files** in sessions: SFTP over SSH, "Relay" drive over RDP (upload from Files, download, files pushed by Windows).
+- **SSH command** across several servers: selection by folder, sudo, timeout, parallelism, library, live tracking, retry of failures, history.
+- **Editing**: entries (create, edit, duplicate, delete), folders and their inherited credentials, vault, Markdown notes, attachments.
+- **Administration**: Proxmox/NetBox sync sources, duplicates and merging, RDM import, encrypted backup (export and restore), availability retest.
+- **Quick connection** over SSH/RDP without creating an entry.
+- **Availability**: unreachable, reachable or unmeasured entries, retest on demand.
+- **Vault**: username, password, SSH key and TOTP codes, behind Face ID; copy with expiration.
+- **Recordings**: playback of recorded sessions (play, pause, ±10 s, speed ×0.5 to ×8, skipped pauses), deletion.
+- Server **activity log**.
 
-## Prérequis côté serveur
+Web entries open in Safari.
 
-- Une version de Relay qui propose **Administration → Appareils** (jetons d'appareil) ;
-  pour les consoles Proxmox, `RELAY_BRIDGE_HOST` (nom par lequel guacd joint Relay).
-- Si Relay est derrière un SSO (oauth2-proxy…), le chemin **`/api/`** doit être exempté du SSO :
-  l'app s'authentifie avec `Authorization: Bearer`, sans cookie. Relay contrôle lui-même chaque requête.
+## Server requirements
 
-## Sécurité
+- A version of Relay that offers **Administration → Devices** (device tokens);
+  for Proxmox consoles, `RELAY_BRIDGE_HOST` (the name by which guacd reaches Relay).
+- If Relay sits behind SSO (oauth2-proxy…), the **`/api/`** path must be exempt from SSO:
+  the app authenticates with `Authorization: Bearer`, without cookies. Relay checks every request itself.
 
-- Le jeton ne quitte le Keychain que pour l'en-tête `Authorization` vers le serveur appairé.
-- HTTPS obligatoire (HTTP seulement pour `localhost`), redirections refusées, session réseau éphémère sans cookies ni cache.
-- Les secrets du coffre ne sont jamais stockés : ils sont demandés au serveur à l'affichage, après Face ID,
-  et copiés avec une expiration de 90 secondes, sans synchronisation iCloud.
-- L'aperçu de l'app est masqué dans le sélecteur d'apps.
-- Les tests n'utilisent que des données fictives (aucun serveur réel).
+## Security
+
+- The token leaves the Keychain only for the `Authorization` header sent to the paired server.
+- HTTPS required (HTTP only for `localhost`), redirects refused, ephemeral network session with no cookies or cache.
+- Vault secrets are never stored: they are requested from the server at display time, after Face ID,
+  and copied with a 90-second expiration, without iCloud sync.
+- The app preview is hidden in the app switcher.
+- Tests use only fictitious data (no real server).
 
 ## Architecture
 
-| Dossier | Rôle |
+| Folder | Role |
 | --- | --- |
-| `RelayKit/` | Paquet Swift sans UIKit : modèles, client API, appairage, protocole Guacamole. Testé sous Linux et macOS. |
-| `Relay/Core` | Session de l'app, Keychain, Face ID |
-| `Relay/Features/Session` | Rendu Guacamole (CoreGraphics), moteur, écran distant, clavier |
-| `Relay/Features/*` | Appairage, connexions, disponibilité, coffre, connexion rapide, journal, réglages |
-| `RelayTests` / `RelayUITests` | Tests du rendu au pixel près et parcours UI avec captures |
-| `scripts/` | Génération du projet Xcode et de l'icône, contrôle des sources |
+| `RelayKit/` | Swift package without UIKit: models, API client, pairing, Guacamole protocol. Tested on Linux and macOS. |
+| `Relay/Core` | App session, Keychain, Face ID |
+| `Relay/Features/Session` | Guacamole rendering (CoreGraphics), engine, remote screen, keyboard |
+| `Relay/Features/*` | Pairing, connections, availability, vault, quick connection, log, settings |
+| `RelayTests` / `RelayUITests` | Pixel-exact rendering tests and UI flows with screenshots |
+| `scripts/` | Xcode project and icon generation, source check |
 
-## Développement
+## Development
 
-Voir [docs/INSTALLATION.md](docs/INSTALLATION.md) : compilation par GitHub Actions et installation sans Mac.
-Correspondance avec les API du serveur : [docs/PARITE.md](docs/PARITE.md).
+See [docs/INSTALLATION.md](docs/INSTALLATION.md): building with GitHub Actions and installing without a Mac.
+Mapping to the server APIs: [docs/PARITE.md](docs/PARITE.md).
 
 ```bash
-node scripts/generate-project.mjs     # après ajout/suppression d'un fichier .swift
-node scripts/check-source.mjs         # avant chaque commit
-swift test --package-path RelayKit    # tests de RelayKit (Linux ou macOS)
+node scripts/generate-project.mjs     # after adding/removing a .swift file
+node scripts/check-source.mjs         # before every commit
+swift test --package-path RelayKit    # RelayKit tests (Linux or macOS)
 ```
